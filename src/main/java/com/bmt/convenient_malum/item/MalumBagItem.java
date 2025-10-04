@@ -21,9 +21,21 @@ public class MalumBagItem extends Item {
 
     private final Map<Integer, Integer> conversionTimers = new HashMap<>();
 
+
+    private static final String SPIRIT_ITEM_CLASS = "com.sammy.malum.common.items.spirit.SpiritItem";
+    private Class<?> spiritItemClass;
+
     public MalumBagItem() {
         super(new Item.Properties()
                 .stacksTo(1));
+
+
+        try {
+            spiritItemClass = Class.forName(SPIRIT_ITEM_CLASS);
+        } catch (ClassNotFoundException e) {
+
+            spiritItemClass = null;
+        }
     }
 
     @Override
@@ -31,7 +43,6 @@ public class MalumBagItem extends Item {
         ItemStack stack = player.getItemInHand(hand);
 
         if (!level.isClientSide()) {
-
             player.openMenu(new SimpleMenuProvider(
                     (containerId, playerInventory, playerEntity) ->
                             new com.bmt.convenient_malum.world.inventory.SoulGuiMenu(containerId, playerInventory, player),
@@ -42,10 +53,8 @@ public class MalumBagItem extends Item {
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
-
     public void onUpdate(ItemStack stack, Level level, Player player, int slot, boolean isSelected) {
         if (level.isClientSide()) return;
-
 
         var capability = stack.getCapability(ForgeCapabilities.ITEM_HANDLER);
         if (!capability.isPresent()) return;
@@ -55,12 +64,10 @@ public class MalumBagItem extends Item {
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             ItemStack soulItem = itemHandler.getStackInSlot(i);
             if (!soulItem.isEmpty() && isSpiritItem(soulItem)) {
-
                 int currentTimer = conversionTimers.getOrDefault(i, 0);
                 currentTimer++;
 
                 if (currentTimer >= 200) {
-
                     convertSoulToExperience(level, player, soulItem, i, itemHandler);
                     conversionTimers.remove(i);
                 } else {
@@ -73,6 +80,11 @@ public class MalumBagItem extends Item {
     }
 
     private boolean isSpiritItem(ItemStack stack) {
+
+        if (spiritItemClass != null && spiritItemClass.isInstance(stack.getItem())) {
+            return true;
+        }
+
         String itemId = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(stack.getItem()).toString();
         return itemId.contains("malum:") && itemId.contains("_spirit");
     }
@@ -83,16 +95,35 @@ public class MalumBagItem extends Item {
         if (experienceAmount > 0) {
             ExperienceOrb expOrb = new ExperienceOrb(level, player.getX(), player.getY() + 0.5, player.getZ(), experienceAmount);
             level.addFreshEntity(expOrb);
-
-
             itemHandler.extractItem(slot, 1, false);
-
         }
     }
 
     private int getExperienceForSoul(ItemStack soulItem) {
-        String itemId = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(soulItem.getItem()).toString();
 
+        if (spiritItemClass != null && spiritItemClass.isInstance(soulItem.getItem())) {
+
+            return getExperienceBySpiritInstance(soulItem.getItem());
+        }
+
+        String itemId = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(soulItem.getItem()).toString();
+        return switch (itemId) {
+            case "malum:sacred_spirit" -> 4;
+            case "malum:wicked_spirit" -> 5;
+            case "malum:arcane_spirit" -> 5;
+            case "malum:eldritch_spirit" ->6;
+            case "malum:earthen_spirit" -> 6;
+            case "malum:infernal_spirit" -> 6;
+            case "malum:aerial_spirit" -> 5;
+            case "malum:aqueous_spirit" -> 8;
+            case "malum:umbral_spirit" -> 22;
+            default -> 5;
+        };
+    }
+
+    private int getExperienceBySpiritInstance(Item spiritItem) {
+
+        String itemId = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(spiritItem).toString();
         return switch (itemId) {
             case "malum:sacred_spirit" -> 4;
             case "malum:wicked_spirit" -> 5;
@@ -113,19 +144,15 @@ public class MalumBagItem extends Item {
             private final ItemStackHandler itemHandler = new ItemStackHandler(9) {
                 @Override
                 protected void onContentsChanged(int slot) {
-
                     if (stack.getTag() == null) {
                         stack.setTag(new net.minecraft.nbt.CompoundTag());
                     }
                     stack.getTag().put("Inventory", serializeNBT());
-
-
                     conversionTimers.remove(slot);
                 }
             };
 
             {
-
                 if (stack.getTag() != null && stack.getTag().contains("Inventory")) {
                     itemHandler.deserializeNBT(stack.getTag().getCompound("Inventory"));
                 }
