@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " A ",
+    "BSB",
+    " A "
+  ],
+  "key": {
+    "A": {
+      "item": "malum:chunk_of_brilliance"
+    },
+    "B": {
+      "item": "malum:astral_weave"
+    },
+    "S": {
+      "item": "malum:spirit_pouch"
+    }
+  },
+  "result": {
+    "item": "convenient_malum:malum_bag",
+    "count": 1
+  }
+}
