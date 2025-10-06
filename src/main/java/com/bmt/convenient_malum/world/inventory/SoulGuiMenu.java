@@ -45,7 +45,7 @@ public class SoulGuiMenu extends AbstractContainerMenu implements Supplier<Map<I
         this.world = player.level();
         this.internal = new ItemStackHandler(9);
 
-        // 尝试从玩家手持物品获取能力
+
         ItemStack heldItem = player.getMainHandItem();
         if (heldItem.getItem() instanceof com.bmt.convenient_malum.item.MalumBagItem) {
             var capability = heldItem.getCapability(ForgeCapabilities.ITEM_HANDLER);
@@ -55,7 +55,7 @@ public class SoulGuiMenu extends AbstractContainerMenu implements Supplier<Map<I
             }
         }
 
-        // 9个槽位，每个对应特定的灵魂物品
+
         this.customSlots.put(0, this.addSlot(new SlotItemHandler(internal, 0, 7, 35) {
             @Override
             public boolean mayPlace(ItemStack stack) {
@@ -111,7 +111,7 @@ public class SoulGuiMenu extends AbstractContainerMenu implements Supplier<Map<I
             }
         }));
 
-        // 玩家库存槽位
+
         for (int si = 0; si < 3; ++si)
             for (int sj = 0; sj < 9; ++sj)
                 this.addSlot(new Slot(inv, sj + (si + 1) * 9, 0 + 8 + sj * 18, 0 + 84 + si * 18));
@@ -266,7 +266,7 @@ public class SoulGuiMenu extends AbstractContainerMenu implements Supplier<Map<I
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         Player entity = event.player;
         if (event.phase == TickEvent.Phase.END && entity.containerMenu instanceof SoulGuiMenu) {
-            // 可以在这里添加 tick 逻辑
+
         }
     }
 }
