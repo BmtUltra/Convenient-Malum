@@ -37,7 +37,7 @@ public class Config {
 
     public static boolean logDirtBlock = true;
     public static int magicNumber = 42;
-    public static String magicNumberIntroduction = "The magic number is... ";  // 设置默认值
+    public static String magicNumberIntroduction = "The magic number is... "; 
     public static Set<Item> items = Set.of();
 
     private static boolean validateItemName(final Object obj) {
